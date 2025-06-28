@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autenticação - F. Tática</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --azul-escuro: #0a1a2a;
+            --azul-medio: #1a3a5a;
+            --azul-claro: #2a5a8a;
+            --azul-vibrante: #3a7aba;
+            --azul-neon: #4a9ada;
+            --branco: #ffffff;
+            --branco-semi: rgba(255, 255, 255, 0.8);
+            --cinza-claro: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--azul-escuro);
+            color: var(--branco);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(42, 90, 138, 0.15) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(58, 122, 186, 0.15) 0%, transparent 20%);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .particle {
+            position: absolute;
+            background-color: var(--azul-neon);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .connection {
+            position: absolute;
+            background: linear-gradient(90deg, var(--azul-vibrante), var(--azul-neon));
+            height: 1px;
+            transform-origin: 0 0;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        .container {
+            background-color: rgba(10, 26, 42, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 600px;
+            padding: 40px;
+            position: relative;
+            z-index: 10;
+            border: 1px solid rgba(58, 122, 186, 0.3);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(74, 154, 218, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--azul-vibrante), var(--azul-neon));
+            margin: 15px auto;
+            border-radius: 3px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            color: var(--azul-neon);
+            margin-bottom: 10px;
+        }
+
+        .title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--branco), var(--cinza-claro));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: var(--branco-semi);
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .status-box {
+            background-color: rgba(26, 58, 90, 0.5);
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+            border: 1px solid rgba(58, 122, 186, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .status-box:hover {
+            border-color: rgba(58, 122, 186, 0.5);
+            box-shadow: 0 5px 15px rgba(58, 122, 186, 0.2);
+        }
+
+        .status-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 65%, rgba(74, 154, 218, 0.05) 100%);
+            pointer-events: none;
+        }
+
+        .status-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--azul-neon);
+        }
+
+        .status-message {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .status-details {
+            color: var(--branco-semi);
+            font-size: 0.9rem;
+        }
+
+        .success .status-icon {
+            color: #4CAF50;
+        }
+
+        .error .status-icon {
+            color: #F44336;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: var(--azul-medio);
+            color: var(--branco);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-top: 15px;
+            border: 1px solid var(--azul-vibrante);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--branco-semi);
+            font-size: 0.8rem;
+        }
+
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="%232a5a8a" opacity=".25"/><path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" fill="%232a5a8a" opacity=".5"/><path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="%232a5a8a"/></svg>');
+            background-size: cover;
+            background-repeat: no-repeat;
+            z-index: -1;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
+
+        .loading-dot {
+            width: 12px;
+            height: 12px;
+            margin: 0 5px;
+            background-color: var(--azul-neon);
+            border-radius: 50%;
+            animation: bounce 1.5s infinite ease-in-out;
+        }
+
+        .loading-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .loading-dot:nth-child(4) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(74, 154, 218, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(74, 154, 218, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(74, 154, 218, 0); }
+        }
+
+        .btn-back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: var(--azul-medio);
+            color: var(--branco);
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 1px solid var(--azul-vibrante);
+        }
+
+        .btn-back:hover {
+            background-color: var(--azul-vibrante);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(58, 122, 186, 0.3);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--azul-medio);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            border: 2px solid var(--azul-vibrante);
+            color: var(--branco);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .user-text {
+            text-align: left;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .user-id {
+            font-size: 0.8rem;
+            color: var(--branco-semi);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .title {
+                font-size: 1.5rem;
+            }
+            
+            .status-message {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles"></div>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h1 class="title">FORÇA TÁTICA</h1>
+            <p class="subtitle">Sistema de Autenticação</p>
+        </div>
+
+        <div id="statusContainer" class="status-box">
+            <!-- Conteúdo será preenchido pelo JavaScript -->
+        </div>
+
+        <div class="footer">
+            <p>Sistema seguro • Todos os direitos reservados</p>
+            <div class="badge pulse">
+                <i class="fas fa-lock"></i> Conexão criptografada
+            </div>
+        </div>
+    </div>
+
+    <div class="wave"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Criar partículas
+            createParticles();
+            
+            // Verificar parâmetros da URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const success = urlParams.get('success');
+            const error = urlParams.get('error');
+            const nickname = urlParams.get('nickname');
+            const discordId = urlParams.get('discordId');
+            
+            const statusContainer = document.getElementById('statusContainer');
+            
+            if (success === 'true') {
+                showSuccess(nickname, discordId);
+            } else if (error) {
+                showError(error);
+            } else {
+                showLoading();
+                // Simular um tempo de carregamento para demonstração
+                setTimeout(() => {
+                    showError('Nenhum parâmetro de status encontrado na URL');
+                }, 2000);
+            }
+        });
+        
+        function showLoading() {
+            const statusContainer = document.getElementById('statusContainer');
+            statusContainer.innerHTML = `
+                <div class="loading">
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                </div>
+                <p class="status-message">Verificando autenticação...</p>
+                <p class="status-details">Por favor, aguarde enquanto validamos suas credenciais</p>
+            `;
+        }
+        
+        function showSuccess(nickname, discordId) {
+            const statusContainer = document.getElementById('statusContainer');
+            statusContainer.classList.add('success');
+            
+            // Gerar iniciais do nickname
+            const initials = nickname ? nickname.charAt(0).toUpperCase() : 'U';
+            
+            statusContainer.innerHTML = `
+                <div class="user-info">
+                    <div class="user-avatar">${initials}</div>
+                    <div class="user-text">
+                        <div class="user-name">${nickname || 'Usuário'}</div>
+                        <div class="user-id">ID: ${discordId || 'N/A'}</div>
+                    </div>
+                </div>
+                <div class="status-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2 class="status-message">Conta vinculada com sucesso!</h2>
+                <p class="status-details">Seu Discord foi vinculado ao seu crachá policial no servidor.</p>
+                <p class="status-details">Você pode voltar ao jogo agora.</p>
+                <a href="#" class="btn-back" onclick="window.close()">
+                    <i class="fas fa-arrow-left"></i> Fechar esta janela
+                </a>
+            `;
+            
+            // Efeito de confetes
+            createConfetti();
+        }
+        
+        function showError(message) {
+            const statusContainer = document.getElementById('statusContainer');
+            statusContainer.classList.add('error');
+            
+            statusContainer.innerHTML = `
+                <div class="status-icon">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <h2 class="status-message">Erro na autenticação</h2>
+                <p class="status-details">${message || 'Ocorreu um erro desconhecido durante o processo de autenticação.'}</p>
+                <p class="status-details">Por favor, tente novamente mais tarde.</p>
+                <a href="#" class="btn-back" onclick="window.close()">
+                    <i class="fas fa-arrow-left"></i> Fechar esta janela
+                </a>
+            `;
+        }
+        
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 30;
+            const particles = [];
+            const connections = [];
+            
+            // Criar partículas
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Posição e tamanho aleatórios
+                const size = Math.random() * 3 + 2;
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${x}vw`;
+                particle.style.top = `${y}vh`;
+                
+                // Velocidade aleatória
+                const speedX = (Math.random() - 0.5) * 0.2;
+                const speedY = (Math.random() - 0.5) * 0.2;
+                
+                container.appendChild(particle);
+                
+                particles.push({
+                    element: particle,
+                    x, y, speedX, speedY, size
+                });
+            }
+            
+            // Criar conexões
+            for (let i = 0; i < particleCount * 2; i++) {
+                const connection = document.createElement('div');
+                connection.className = 'connection';
+                container.appendChild(connection);
+                connections.push(connection);
+            }
+            
+            // Animar partículas
+            function animate() {
+                const mouse = { x: 0, y: 0 };
+                
+                document.addEventListener('mousemove', (e) => {
+                    mouse.x = (e.clientX / window.innerWidth) * 100;
+                    mouse.y = (e.clientY / window.innerHeight) * 100;
+                });
+                
+                function update() {
+                    // Atualizar posições das partículas
+                    particles.forEach(p => {
+                        // Mover partícula
+                        p.x += p.speedX;
+                        p.y += p.speedY;
+                        
+                        // Rebater nas bordas
+                        if (p.x < 0 || p.x > 100) p.speedX *= -1;
+                        if (p.y < 0 || p.y > 100) p.speedY *= -1;
+                        
+                        // Atrair para o mouse
+                        const dx = mouse.x - p.x;
+                        const dy = mouse.y - p.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist < 15) {
+                            const force = (15 - dist) / 15;
+                            p.x += dx * 0.05 * force;
+                            p.y += dy * 0.05 * force;
+                        }
+                        
+                        // Aplicar nova posição
+                        p.element.style.left = `${p.x}vw`;
+                        p.element.style.top = `${p.y}vh`;
+                    });
+                    
+                    // Atualizar conexões
+                    let connectionIndex = 0;
+                    
+                    for (let i = 0; i < particles.length; i++) {
+                        for (let j = i + 1; j < particles.length; j++) {
+                            if (connectionIndex >= connections.length) break;
+                            
+                            const p1 = particles[i];
+                            const p2 = particles[j];
+                            
+                            const dx = p1.x - p2.x;
+                            const dy = p1.y - p2.y;
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (dist < 15) {
+                                const angle = Math.atan2(dy, dx);
+                                const length = dist;
+                                
+                                const connection = connections[connectionIndex];
+                                connection.style.width = `${length}vw`;
+                                connection.style.left = `${p2.x}vw`;
+                                connection.style.top = `${p2.y}vh`;
+                                connection.style.transform = `rotate(${angle}rad)`;
+                                connection.style.opacity = `${1 - (dist / 15)}`;
+                                
+                                connectionIndex++;
+                            }
+                        }
+                    }
+                    
+                    // Esconder conexões não usadas
+                    for (let i = connectionIndex; i < connections.length; i++) {
+                        connections[i].style.opacity = '0';
+                    }
+                    
+                    requestAnimationFrame(update);
+                }
+                
+                update();
+            }
+            
+            animate();
+        }
+        
+        function createConfetti() {
+            const container = document.getElementById('particles');
+            const confettiCount = 50;
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'particle';
+                
+                const size = Math.random() * 8 + 4;
+                const x = Math.random() * 100;
+                const colors = ['#4a9ada', '#3a7aba', '#2a5a8a', '#ffffff'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                confetti.style.left = `${x}vw`;
+                confetti.style.top = `-10px`;
+                confetti.style.backgroundColor = color;
+                confetti.style.borderRadius = size > 8 ? '4px' : '50%';
+                
+                container.appendChild(confetti);
+                
+                // Animação de queda
+                const duration = Math.random() * 3 + 2;
+                const delay = Math.random() * 2;
+                
+                confetti.style.animation = `fall ${duration}s linear ${delay}s forwards`;
+                
+                // Criar keyframes dinamicamente
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    @keyframes fall {
+                        0% {
+                            transform: translateY(0) rotate(0deg);
+                            opacity: 1;
+                        }
+                        100% {
+                            transform: translateY(100vh) rotate(${Math.random() * 360}deg);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                // Remover após animação
+                setTimeout(() => {
+                    confetti.remove();
+                }, (duration + delay) * 1000);
+            }
+        }
+    </script>
+</body>
+</html>
